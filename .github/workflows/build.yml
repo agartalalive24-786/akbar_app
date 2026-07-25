@@ -1,64 +1,76 @@
-name: Android CI - Build APK
+name: Build APK
 
 on:
   push:
     branches: [ main ]
-    tags:
-      - 'v*'          # release tags like v1.0.0
   pull_request:
     branches: [ main ]
-
-permissions:
-  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        variant: [assembleDebug, assembleRelease]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up JDK 11
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '11'
-          cache: gradle
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        cache: gradle
 
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
+    - name: Make gradlew executable
+      run: chmod +x gradlew
 
-      - name: Build ${{ matrix.variant }}
-        run: ./gradlew ${matrix.variant} --no-daemon -Porg.gradle.jvmargs="-Xmx2048m"
+    - name: Build Debug APK
+      run: ./gradlew assembleDebug
 
-      - name: Upload artifact - ${{ matrix.variant }}
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: app-${{ matrix.variant }}
-          path: |
-            app/build/outputs/apk/debug/*.apk
-            app/build/outputs/apk/release/*.apk
-          retention-days: 30
+    - name: Build Release APK
+      run: ./gradlew assembleRelease
 
-  create-release:
-    needs: build
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
-    steps:
-      - name: Create Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
-          body: |
-            Release created by GitHub Actions
-            Commit: ${{ github.sha }}
-          draft: false
-          prerelease: false
+    - name: Check APKs exist
+      id: check_apks
+      run: |
+        if [ -f app/build/outputs/apk/debug/app-debug.apk ]; then
+          echo "debug_exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "debug_exists=false" >> $GITHUB_OUTPUT
+        fi
+        if [ -f app/build/outputs/apk/release/app-release-unsigned.apk ]; then
+          echo "release_exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "release_exists=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Upload Debug APK
+      if: steps.check_apks.outputs.debug_exists == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-debug
+        path: app/build/outputs/apk/debug/app-debug.apk
+        retention-days: 30
+
+    - name: Upload Release APK
+      if: steps.check_apks.outputs.release_exists == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-release
+        path: app/build/outputs/apk/release/app-release-unsigned.apk
+        retention-days: 30
+
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Chess Vision Pro ${{ github.ref }}
+        body: |
+          ## Release Notes
+          - Build timestamp: ${{ github.event.head_commit.timestamp }}
+          - Commit: ${{ github.event.head_commit.message }}
+        draft: false
+        prerelease: false
