@@ -24,12 +24,21 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
 
+    - name: Remove Invalid JVM Options from gradle.properties
+      run: |
+        if [ -f gradle.properties ]; then
+          sed -i '/MaxPermSize/d' gradle.properties
+          echo "Cleaned gradle.properties:"
+          cat gradle.properties
+        fi
+      shell: bash
+
     - name: Build Debug APK
-      run: gradle assembleDebug --no-daemon -Porg.gradle.jvmargs="-Xmx2048m -Dfile.encoding=UTF-8"
+      run: gradle assembleDebug --no-daemon
       shell: bash
 
     - name: Build Release APK
-      run: gradle assembleRelease --no-daemon -Porg.gradle.jvmargs="-Xmx2048m -Dfile.encoding=UTF-8"
+      run: gradle assembleRelease --no-daemon
       shell: bash
 
     - name: Check APKs exist
