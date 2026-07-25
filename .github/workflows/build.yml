@@ -21,8 +21,18 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Make gradlew executable
-      run: chmod +x gradlew
+    - name: Normalize gradlew and make executable
+      run: |
+        # remove Windows CR (\r) characters if present (safe fallback if dos2unix isn't installed)
+        sed -i 's/\r$//' gradlew || true
+        chmod +x gradlew
+        # optional diagnostics to help debugging in CI logs
+        if [ -f gradlew ]; then
+          echo "--- gradlew head (first 30 lines) ---"
+          sed -n '1,30p' gradlew
+          echo "--- file type ---"
+          file gradlew || true
+        fi
 
     - name: Build Debug APK
       run: ./gradlew assembleDebug
