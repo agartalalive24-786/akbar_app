@@ -1,10 +1,10 @@
-name: Android CI - Build APK
+name: Build APK
 
 on:
   push:
     branches: [ main ]
     tags:
-      - 'v*'          # release tags like v1.0.0
+      - 'v*'
   pull_request:
     branches: [ main ]
 
@@ -37,7 +37,7 @@ jobs:
 
       - name: Upload artifact - ${{ matrix.variant }}
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app-${{ matrix.variant }}
           path: |
