@@ -76,7 +76,7 @@ eval "set -- $(printf '%s\n' "$DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS" | xargs
 # by default we should be in the correct project dir, but when run from Gradle we
 # might be in the subdir of the actual project dir. Let's try parent dir in case it is a subdir
 if [ ! -d "$APP_HOME" ]; then
-    APP_HOME="$( cd "${APP_HOME%/*}" && pwd -P )/"
+    APP_HOME="$( cd "${APP_HOME%/*}" && pwd -P )"
 fi
 
 APP_HOME=$( cd "$APP_HOME" && pwd -P ) || exit
