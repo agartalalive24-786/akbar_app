@@ -29,40 +29,14 @@ jobs:
           java-version: '17'
           cache: gradle
 
-      - name: Recreate clean gradlew for Linux
-        run: |
-          rm -f gradlew
-          cat << 'EOF' > gradlew
-          #!/bin/sh
-          exec ./gradlew-real "$@"
-          EOF
-          # Let's write a robust python script to generate a clean gradlew wrapper execution
-          python3 -c "
-          script = '''#!/usr/bin/env sh
-          import os, sys, subprocess
-          gradle_jar = os.path.join(os.path.dirname(__file__), 'gradle/wrapper/gradle-wrapper.jar')
-          java = os.environ.get('JAVA_HOME', '')
-          java_cmd = os.path.join(java, 'bin/java') if java else 'java'
-          cmd = [java_cmd, '-jar', gradle_jar] + sys.argv[1:]
-          sys.exit(subprocess.call(cmd))
-          '''
-          "
-          # Simpler direct approach: use sed/awk or python to completely sanitize the original file safely
-          python3 -c "
-          with open('gradlew', 'rb') as f:
-              content = f.read()
-          # Remove all carriage returns and normalize
-          content = content.replace(b'\r\n', b'\n').replace(b'\r', b'\n')
-          with open('gradlew', 'wb') as f:
-              f.write(content)
-          "
-          chmod +x ./gradlew
-        shell: bash
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
 
       - name: Build ${{ matrix.variant }}
         env:
           VARIANT: ${{ matrix.variant }}
-        run: ./gradlew $VARIANT --no-daemon -Porg.gradle.jvmargs="-Xmx2048m"
+        run: gradle $VARIANT --no-daemon -Porg.gradle.jvmargs="-Xmx2048m"
+        shell: bash
 
       - name: Upload artifact - ${{ matrix.variant }}
         if: always()
