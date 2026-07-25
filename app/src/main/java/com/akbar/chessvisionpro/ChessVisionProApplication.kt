@@ -9,17 +9,11 @@ class ChessVisionProApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         
-        // Initialize logging
+        // Initialize Timber logging
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }
         
-        // Initialize chess engine
-        initializeChessEngine()
-    }
-    
-    private fun initializeChessEngine() {
-        // Chess engine initialization logic
-        Timber.d("Chess Vision Pro initialized successfully")
+        Timber.d("Chess Vision Pro Application initialized")
     }
 }

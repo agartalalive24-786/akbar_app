@@ -94,7 +94,7 @@ class StockfishEngine @Inject constructor() {
     
     private fun sendCommand(command: String) {
         try {
-            input?.write(command + "\\n")
+            input?.write(command + "\n")
             input?.flush()
             Timber.d("Sent to engine: $command")
         } catch (e: Exception) {
@@ -107,7 +107,7 @@ class StockfishEngine @Inject constructor() {
         bestMove: String,
         ponder: String
     ): EngineAnalysis {
-        val lines_mutable = mutableListOf<AnalysisLine>()
+        val linesMutable = mutableListOf<AnalysisLine>()
         var depth = 0
         var nodes = 0L
         var time = 0L
@@ -128,7 +128,7 @@ class StockfishEngine @Inject constructor() {
                                 val scoreStr = parts.dropWhile { it != "score" }.drop(1).firstOrNull() ?: "0"
                                 val score = scoreStr.toIntOrNull() ?: 0
                                 
-                                lines_mutable.add(
+                                linesMutable.add(
                                     AnalysisLine(
                                         depth = depth,
                                         score = score,
@@ -144,7 +144,7 @@ class StockfishEngine @Inject constructor() {
         }
         
         return EngineAnalysis(
-            lines = lines_mutable.take(4),
+            lines = linesMutable.take(4),
             bestMove = bestMove,
             ponder = ponder,
             depth = depth,

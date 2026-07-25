@@ -87,9 +87,6 @@ dependencies {
     // JSON
     implementation 'com.google.code.gson:gson:2.10.1'
 
-    // Chess Engine
-    implementation 'com.github.lichess-org:lila:master-SNAPSHOT'
-
     // Images & Icons
     implementation 'io.coil-kt:coil-compose:2.5.0'
     implementation 'androidx.compose.material:material-icons-extended:1.5.4'
