@@ -20,15 +20,34 @@ class StockfishEngine @Inject constructor() {
     
     fun initialize(enginePath: String): Flow<Result<Unit>> = flow {
         try {
-            process = ProcessBuilder(enginePath).start()
-            input = OutputStreamWriter(process!!.outputStream)
-            output = BufferedReader(InputStreamReader(process!!.inputStream))
+            val proc = ProcessBuilder(enginePath).start()
+            if (proc == null) {
+                emit(Result.failure(Exception("Failed to start engine process")))
+                return@flow
+            }
+            
+            process = proc
+            input = OutputStreamWriter(proc.outputStream)
+            output = BufferedReader(InputStreamReader(proc.inputStream))
             
             sendCommand("uci")
             
             var response = ""
-            while (!response.contains("uciok") && response.isNotEmpty()) {
+            var attempts = 0
+            val maxAttempts = 1000
+            
+            while (attempts < maxAttempts) {
                 response = output?.readLine() ?: ""
+                if (response.contains("uciok")) {
+                    break
+                }
+                if (response.isEmpty()) {
+                    attempts++
+                }
+            }
+            
+            if (attempts >= maxAttempts) {
+                throw Exception("Engine initialization timeout - uciok not received")
             }
             
             isInitialized = true
@@ -36,6 +55,7 @@ class StockfishEngine @Inject constructor() {
             emit(Result.success(Unit))
         } catch (e: Exception) {
             Timber.e(e, "Failed to initialize Stockfish engine")
+            cleanup()
             emit(Result.failure(e))
         }
     }.flowOn(Dispatchers.Default)
@@ -83,14 +103,29 @@ class StockfishEngine @Inject constructor() {
         try {
             sendCommand("quit")
             process?.waitFor()
+            cleanup()
             isInitialized = false
             Timber.d("Stockfish engine shutdown")
             emit(Result.success(Unit))
         } catch (e: Exception) {
             Timber.e(e, "Error shutting down engine")
+            cleanup()
             emit(Result.failure(e))
         }
     }.flowOn(Dispatchers.Default)
+    
+    private fun cleanup() {
+        try {
+            input?.close()
+            output?.close()
+            process?.destroyForcibly()
+        } catch (e: Exception) {
+            Timber.e(e, "Error during cleanup")
+        }
+        process = null
+        input = null
+        output = null
+    }
     
     private fun sendCommand(command: String) {
         try {
