@@ -23,27 +23,22 @@ jobs:
 
     - name: Normalize gradlew and make executable
       run: |
-        python3 << 'EOF'
+        python3 -c "
         with open('gradlew', 'rb') as f:
             content = f.read()
-        # Convert CRLF to LF
         content = content.replace(b'\r\n', b'\n').replace(b'\r', b'\n')
         with open('gradlew', 'wb') as f:
             f.write(content)
-        EOF
+        "
         chmod +x gradlew
-        echo "--- gradlew file type ---"
-        file gradlew
-        echo "--- gradlew first 30 lines ---"
-        head -30 gradlew
       shell: bash
 
     - name: Build Debug APK
-      run: bash ./gradlew assembleDebug --no-daemon
+      run: ./gradlew assembleDebug --no-daemon
       shell: bash
 
     - name: Build Release APK
-      run: bash ./gradlew assembleRelease --no-daemon
+      run: ./gradlew assembleRelease --no-daemon
       shell: bash
 
     - name: Check APKs exist
