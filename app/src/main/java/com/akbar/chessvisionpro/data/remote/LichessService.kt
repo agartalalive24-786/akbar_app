@@ -6,21 +6,21 @@ import javax.inject.Inject
 class LichessService @Inject constructor(
     private val lichessApi: LichessApi
 ) {
-    suspend fun getDailyPuzzle() = try {
-        lichessApi.getDailyPuzzle()
+    suspend fun getDailyPuzzle(): Result<LichessApi.PuzzleResponse> = try {
+        Result.success(lichessApi.getDailyPuzzle())
     } catch (e: Exception) {
         Timber.e(e, "Error fetching daily puzzle")
-        throw e
+        Result.failure(e)
     }
 
     suspend fun searchPuzzles(
         rating: String,
         themes: String,
         page: Int = 1
-    ) = try {
-        lichessApi.searchPuzzles(rating, themes, page)
+    ): Result<LichessApi.PuzzleSearchResponse> = try {
+        Result.success(lichessApi.searchPuzzles(rating, themes, page))
     } catch (e: Exception) {
         Timber.e(e, "Error searching puzzles")
-        throw e
+        Result.failure(e)
     }
 }
