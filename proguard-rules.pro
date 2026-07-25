@@ -1,25 +1,37 @@
-# This is a configuration file for ProGuard.
-# http://proguard.sourceforge.net/index.html#manual/usage.html
+# Chess Vision Pro ProGuard Rules
 
 -dontusemixedcaseclassnames
 -verbose
 
-# Preserve line numbers for debugging stack traces
+# Keep line numbers
 -keepattributes SourceFile,LineNumberTable
-
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
 -renamesourcefileattribute SourceFile
 
-# Keep Kotlin metadata
+# Keep Kotlin
 -keepclassmembers class **$WhenMappings {
     <fields>;
 }
 
-# Keep Hilt generated code
+# Keep Hilt
 -keep class dagger.hilt.** { *; }
 -keep class javax.inject.** { *; }
+-keep class * extends dagger.hilt.android.internal.managers.ViewComponentManager { *; }
 
-# Keep Room entities
+# Keep Room
 -keep @androidx.room.Entity class * { *; }
 -keep @androidx.room.Dao class * { *; }
+-keep class androidx.room.** { *; }
+
+# Keep Compose
+-keep class androidx.compose.** { *; }
+
+# Keep models
+-keep class com.akbar.chessvisionpro.data.models.** { *; }
+
+# JSON serialization
+-keepclassmembers class * implements com.google.gson.JsonSerializable {
+    static final long serialVersionUID;
+    static final com.google.gson.internal.Gson gson;
+    public static final com.google.gson.stream.JsonReader;
+    public static final com.google.gson.stream.JsonWriter;
+}

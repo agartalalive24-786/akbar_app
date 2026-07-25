@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "AkbarApp"
+rootProject.name = "Chess Vision Pro"
 include ':app'
