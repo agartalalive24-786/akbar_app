@@ -33,12 +33,15 @@ jobs:
           echo "--- file type ---"
           file gradlew || true
         fi
+      shell: bash
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug
+      run: bash ./gradlew assembleDebug --no-daemon
+      shell: bash
 
     - name: Build Release APK
-      run: ./gradlew assembleRelease
+      run: bash ./gradlew assembleRelease --no-daemon
+      shell: bash
 
     - name: Check APKs exist
       id: check_apks
