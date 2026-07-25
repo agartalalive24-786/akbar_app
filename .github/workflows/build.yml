@@ -29,15 +29,10 @@ jobs:
           java-version: '17'
           cache: gradle
 
-      - name: Fix Windows Line Endings in gradlew
+      - name: Force LF line endings for gradlew
         run: |
-          python3 -c "
-          with open('gradlew', 'rb') as f:
-              content = f.read()
-          content = content.replace(b'\r\n', b'\n').replace(b'\r', b'\n')
-          with open('gradlew', 'wb') as f:
-              f.write(content)
-          "
+          tr -d '\r' < gradlew > gradlew.tmp
+          mv gradlew.tmp gradlew
           chmod +x ./gradlew
         shell: bash
 
