@@ -21,15 +21,9 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Normalize gradlew and make executable
+    - name: Fix Windows Line Endings in gradlew
       run: |
-        python3 -c "
-        with open('gradlew', 'rb') as f:
-            content = f.read()
-        content = content.replace(b'\r\n', b'\n').replace(b'\r', b'\n')
-        with open('gradlew', 'wb') as f:
-            f.write(content)
-        "
+        sed -i -e 's/\r$//' gradlew
         chmod +x gradlew
       shell: bash
 
