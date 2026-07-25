@@ -21,7 +21,7 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-      - name: Normalize gradlew and make executable
+    - name: Normalize gradlew and make executable
       run: |
         python3 << 'EOF'
         with open('gradlew', 'rb') as f:
