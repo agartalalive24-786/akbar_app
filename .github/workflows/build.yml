@@ -21,18 +21,21 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Normalize gradlew and make executable
+      - name: Normalize gradlew and make executable
       run: |
-        # remove Windows CR (\r) characters if present (safe fallback if dos2unix isn't installed)
-        sed -i 's/\r$//' gradlew || true
+        python3 << 'EOF'
+        with open('gradlew', 'rb') as f:
+            content = f.read()
+        # Convert CRLF to LF
+        content = content.replace(b'\r\n', b'\n').replace(b'\r', b'\n')
+        with open('gradlew', 'wb') as f:
+            f.write(content)
+        EOF
         chmod +x gradlew
-        # optional diagnostics to help debugging in CI logs
-        if [ -f gradlew ]; then
-          echo "--- gradlew head (first 30 lines) ---"
-          sed -n '1,30p' gradlew
-          echo "--- file type ---"
-          file gradlew || true
-        fi
+        echo "--- gradlew file type ---"
+        file gradlew
+        echo "--- gradlew first 30 lines ---"
+        head -30 gradlew
       shell: bash
 
     - name: Build Debug APK
