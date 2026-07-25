@@ -29,22 +29,14 @@ jobs:
           java-version: '17'
           cache: gradle
 
-      - name: Fix Windows Line Endings in gradlew
-        run: |
-          python3 -c "
-          with open('gradlew', 'rb') as f:
-              content = f.read()
-          content = content.replace(b'\r\n', b'\n').replace(b'\r', b'\n')
-          with open('gradlew', 'wb') as f:
-              f.write(content)
-          "
-          chmod +x ./gradlew
-        shell: bash
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
 
       - name: Build ${{ matrix.variant }}
         env:
           VARIANT: ${{ matrix.variant }}
-        run: ./gradlew $VARIANT --no-daemon -Porg.gradle.jvmargs="-Xmx2048m"
+        run: gradle $VARIANT --no-daemon -Porg.gradle.jvmargs="-Xmx2048m"
+        shell: bash
 
       - name: Upload artifact - ${{ matrix.variant }}
         if: always()
