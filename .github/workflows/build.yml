@@ -29,14 +29,13 @@ jobs:
           java-version: '17'
           cache: gradle
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
 
       - name: Build ${{ matrix.variant }}
         env:
           VARIANT: ${{ matrix.variant }}
-        run: gradle $VARIANT --no-daemon -Porg.gradle.jvmargs="-Xmx2048m"
-        shell: bash
+        run: ./gradlew $VARIANT --no-daemon -Porg.gradle.jvmargs="-Xmx2048m"
 
       - name: Upload artifact - ${{ matrix.variant }}
         if: always()
