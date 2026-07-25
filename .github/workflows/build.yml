@@ -44,7 +44,7 @@ jobs:
       - name: Build ${{ matrix.variant }}
         env:
           VARIANT: ${{ matrix.variant }}
-        run: ./gradlew $VARIANT --no-daemon -Porg.gradle.jvmargs="-Xmx2048m"
+        run: ./gradlew "$VARIANT" --no-daemon -Porg.gradle.jvmargs="-Xmx2048m"
 
       - name: Upload artifact - ${{ matrix.variant }}
         if: always()
